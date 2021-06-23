@@ -4,6 +4,9 @@ const Product = require('../../Models/ProductModel');
 const ArticleCategory = require('../../Models/ArticleCategoryModel');
 const Article = require('../../Models/ArticleModel');
 const Employee = require('../../Models/EmployeeModel');
+const User = require('../../Models/UserModel');
+const ProductLike = require('../../Models/ProductLikeModel');
+const ArticleLike = require('../../Models/ArticleLikeModel');
 const isLoggedIn = require('../../../middlewares/isLoggedIn');
 //import captchapng from 'captchapng';
 //let CAPTCHA_NUM = parseInt(Math.random() * 9000 + 1000);
@@ -14,6 +17,8 @@ const HomeController = {
     brands,
     productCategories,
     products,
+    productLikes,
+    productDisLikes,
     articleCategories,
     articles,
     getContactUs,
@@ -81,6 +86,7 @@ async function productCategories(req, res) {
 
 async function products(req, res) {
     try {
+        //options.through.where
         return res.status(200).json({
             state: true,
             message: "Success!",
@@ -88,14 +94,98 @@ async function products(req, res) {
                 data: await Product.findAll({
                     where: {
                         state: "ACTIVE"
-                    }
-                }),
+                    },
+                    include: [
+                        {
+                            model: User,
+                            //as: "productLikes",
+                            attributes: ['id'],
+                            through: {
+                                attributes: [],
+                            },
+                        }
+                    ]
+                })
             },
             errors: null
         });
     } catch (err) {
         console.log(err)
     }
+}
+
+async function productLikes(req, res) {
+    ProductLike.create({
+        userId: req.body.userId,
+        productId: req.body.productId,
+        isLike: true,
+    })
+        .then(async () => {
+            return res.status(200).json({
+                state: true,
+                message: "Success!",
+                data: {
+                    data: await Product.findAll({
+                        where: {
+                            state: "ACTIVE"
+                        }
+                    }),
+                },
+                errors: null
+            });
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+}
+
+async function productDisLikes(req, res) {
+
+    await ProductLike.findOne({
+        where: {
+            userId: req.body.userId,
+            productId: req.body.productId,
+        }
+    })
+        .then(async (result) => {
+            if (result) {
+                const pl = {
+                    userId: req.body.userId,
+                    productId: req.body.productId,
+                    isLike: false,
+                };
+                await ProductLike.update(pl, {
+                    where: {
+                        userId: req.body.userId,
+                        productId: req.body.productId,
+                    }
+                })
+                    .then(() => {
+                        return res.status(200).json({
+                                state: true,
+                                message: "Success!",
+                                data: null,
+                                errors: null
+                            }
+                        );
+                    })
+            }
+            await ProductLike.create({
+                userId: req.body.userId,
+                productId: req.body.productId,
+                isLike: false,
+            })
+                .then(() => {
+                    return res.status(200).json({
+                        state: true,
+                        message: "Success!",
+                        data: null,
+                        errors: null
+                    });
+                });
+        }).catch(err => {
+            console.log(err)
+        })
 }
 
 async function articleCategories(req, res) {

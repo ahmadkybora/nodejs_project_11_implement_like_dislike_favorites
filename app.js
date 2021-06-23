@@ -106,5 +106,11 @@ app.listen(port, () =>{
     console.log(`Server started on port ${port}`);
 });
 
+/*const ArticleLike = require('./app/Models/ArticleLikeModel');
+const ProductLike = require('./app/Models/ProductLikeModel');
+
+app.use(ArticleLike);
+app.use(ProductLike);*/
+
 module.exports = app;
 

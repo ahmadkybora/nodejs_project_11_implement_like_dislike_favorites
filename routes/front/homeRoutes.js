@@ -6,6 +6,8 @@ router.get('/', HomeController.index);
 router.get('/brands', HomeController.brands);
 router.get('/product-categories', HomeController.productCategories);
 router.get('/products', HomeController.products);
+router.post('/product-likes', HomeController.productLikes);
+router.post('/product-dislikes', HomeController.productDisLikes);
 router.get('/article-categories', HomeController.articleCategories);
 router.get('/articles', HomeController.articles);
 router.get('/contact-us', HomeController.getContactUs);
