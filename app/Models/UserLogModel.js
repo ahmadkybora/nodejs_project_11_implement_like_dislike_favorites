@@ -11,14 +11,14 @@ const UserLog = dbCon.define('UserLog', {
         unique: true,
         required: true,
     },
-    userId: {
+    /*userId: {
         type: DataTypes.INTEGER,
         references: {
             model: 'userlogs',
             key: 'id'
         },
         onDelete: 'CASCADE',
-    },
+    },*/
     loggedOut: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

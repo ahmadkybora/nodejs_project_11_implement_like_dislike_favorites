@@ -1,9 +1,9 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
+const {Sequelize, Model, DataTypes} = require("sequelize");
 const dbCon = require('../../database/connection');
 const ProductModel = require('./ProductModel');
 const UserModel = require('./UserModel');
 
-const ProductLike = dbCon.define('ProductLike', {
+const ProductFavoriteLike = dbCon.define('ProductFavoriteLike', {
     id: {
         type: DataTypes.BIGINT,
         primaryKey: true,
@@ -12,7 +12,7 @@ const ProductLike = dbCon.define('ProductLike', {
         unique: true,
         required: true,
     },
-    productId: {
+    /*productId: {
         type: DataTypes.INTEGER,
         references: {
             model: 'products',
@@ -27,10 +27,12 @@ const ProductLike = dbCon.define('ProductLike', {
             key: 'id'
         },
         onDelete: 'CASCADE',
+    },*/
+    isFavorite: {
+        type: DataTypes.BOOLEAN,
     },
     isLike: {
         type: DataTypes.BOOLEAN,
-        required: true,
     },
     createdAt: {
         allowNull: false,
@@ -43,15 +45,15 @@ const ProductLike = dbCon.define('ProductLike', {
 });
 
 ProductModel.belongsToMany(UserModel, {
-    through: ProductLike,
+    through: ProductFavoriteLike,
     onDelete: 'CASCADE',
     foreignKey: "productId",
 });
 
 UserModel.belongsToMany(ProductModel, {
-    through: ProductLike,
+    through: ProductFavoriteLike,
     onDelete: 'CASCADE',
     foreignKey: "userId",
 });
 
-module.exports = ProductLike;
+module.exports = ProductFavoriteLike;

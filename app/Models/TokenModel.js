@@ -11,14 +11,14 @@ const Token = dbCon.define('Token', {
         unique: true,
         required: true,
     },
-    userId: {
+    /*userId: {
         type: DataTypes.INTEGER,
         references: {
             model: 'tokens',
             key: 'id'
         },
         onDelete: 'CASCADE',
-    },
+    },*/
     token: {
         type: DataTypes.TEXT,
     },

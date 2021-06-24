@@ -5,7 +5,7 @@ const ArticleCategory = require('../../Models/ArticleCategoryModel');
 const Article = require('../../Models/ArticleModel');
 const Employee = require('../../Models/EmployeeModel');
 const User = require('../../Models/UserModel');
-const ProductLike = require('../../Models/ProductLikeModel');
+const ProductFavoriteLike = require('../../Models/ProductFavoriteLikeModel');
 const ArticleLike = require('../../Models/ArticleLikeModel');
 const isLoggedIn = require('../../../middlewares/isLoggedIn');
 //import captchapng from 'captchapng';
@@ -19,8 +19,12 @@ const HomeController = {
     products,
     productLikes,
     productDisLikes,
+    productFavorite,
+    productUnFavorite,
     articleCategories,
     articles,
+    articleLikes,
+    articleDisLikes,
     getContactUs,
     postContactUs,
     getCaptcha
@@ -86,7 +90,6 @@ async function productCategories(req, res) {
 
 async function products(req, res) {
     try {
-        //options.through.where
         return res.status(200).json({
             state: true,
             message: "Success!",
@@ -98,10 +101,9 @@ async function products(req, res) {
                     include: [
                         {
                             model: User,
-                            //as: "productLikes",
                             attributes: ['id'],
                             through: {
-                                attributes: [],
+                                attributes: ['isFavorite', 'isLike'],
                             },
                         }
                     ]
@@ -115,77 +117,257 @@ async function products(req, res) {
 }
 
 async function productLikes(req, res) {
-    ProductLike.create({
-        userId: req.body.userId,
-        productId: req.body.productId,
-        isLike: true,
-    })
-        .then(async () => {
-            return res.status(200).json({
-                state: true,
-                message: "Success!",
-                data: {
-                    data: await Product.findAll({
-                        where: {
-                            state: "ACTIVE"
-                        }
-                    }),
-                },
-                errors: null
-            });
+    const user = await User.findOne({
+        where: {
+            username: req.body.username
+        }
+    });
+
+    if (user) {
+
+        const pl = {
+            userId: user.id,
+            productId: req.body.productId,
+            isLike: true,
+        };
+
+        ProductFavoriteLike.findOne({
+            where: {
+                userId: user.id,
+                productId: req.body.productId,
+            }
         })
-        .catch((err) => {
+            .then(result => {
+                if (result) {
+                    ProductFavoriteLike.update(pl, {
+                        where: {
+                            userId: user.id,
+                            productId: req.body.productId,
+                        }
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    });
+                } else {
+                    ProductFavoriteLike.create({
+                        userId: user.id,
+                        productId: req.body.productId,
+                        isLike: true,
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    })
+                }
+            }).catch(err => {
             console.log(err)
         })
+    } else {
+        return res.status(401).json({
+            state: false,
+            message: "You are not logged in!",
+            data: null,
+            errors: null
+        });
+    }
 }
 
 async function productDisLikes(req, res) {
-
-    await ProductLike.findOne({
+    const user = await User.findOne({
         where: {
-            userId: req.body.userId,
-            productId: req.body.productId,
+            username: req.body.username
         }
-    })
-        .then(async (result) => {
-            if (result) {
-                const pl = {
-                    userId: req.body.userId,
-                    productId: req.body.productId,
-                    isLike: false,
-                };
-                await ProductLike.update(pl, {
-                    where: {
-                        userId: req.body.userId,
-                        productId: req.body.productId,
-                    }
-                })
-                    .then(() => {
+    });
+
+    if (user) {
+
+        const pl = {
+            userId: user.id,
+            productId: req.body.productId,
+            isLike: false,
+        };
+
+        ProductFavoriteLike.findOne({
+            where: {
+                userId: user.id,
+                productId: req.body.productId,
+            }
+        })
+            .then(result => {
+                if (result) {
+                    ProductFavoriteLike.update(pl, {
+                        where: {
+                            userId: user.id,
+                            productId: req.body.productId,
+                        }
+                    }).then(() => {
                         return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    });
+                } else {
+                    ProductFavoriteLike.create({
+                        userId: user.id,
+                        productId: req.body.productId,
+                        isLike: false,
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    })
+                }
+            }).catch(err => {
+            console.log(err)
+        })
+    } else {
+        return res.status(401).json({
+            state: false,
+            message: "You are not logged in!",
+            data: null,
+            errors: null
+        });
+    }
+}
+
+async function productFavorite(req, res) {
+    const user = await User.findOne({
+        where: {
+            username: req.body.username
+        }
+    });
+
+    if (user) {
+
+        const pl = {
+            userId: user.id,
+            productId: req.body.productId,
+            isFavorite: true,
+        };
+
+        ProductFavoriteLike.findOne({
+            where: {
+                userId: user.id,
+                productId: req.body.productId,
+            }
+        })
+            .then(result => {
+                if (result) {
+                    ProductFavoriteLike.update(pl, {
+                        where: {
+                            userId: user.id,
+                            productId: req.body.productId,
+                        }
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    });
+                } else {
+                    ProductFavoriteLike.create({
+                        userId: user.id,
+                        productId: req.body.productId,
+                        isFavorite: true,
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    })
+                }
+            }).catch(err => {
+            console.log(err)
+        })
+    } else {
+        return res.status(401).json({
+            state: false,
+            message: "You are not logged in!",
+            data: null,
+            errors: null
+        });
+    }
+}
+
+async function productUnFavorite(req, res) {
+    const user = await User.findOne({
+        where: {
+            username: req.body.username
+        }
+    });
+
+    if (user) {
+
+        const pl = {
+            userId: user.id,
+            productId: req.body.productId,
+            isFavorite: false,
+        };
+
+        ProductFavoriteLike.findOne({
+            where: {
+                userId: user.id,
+                productId: req.body.productId,
+            }
+        })
+            .then(result => {
+                if (result) {
+                    ProductFavoriteLike.update(pl, {
+                        where: {
+                            userId: user.id,
+                            productId: req.body.productId,
+                        }
+                    })
+                        .then(() => {
+                            return res.status(200).json({
                                 state: true,
                                 message: "Success!",
                                 data: null,
                                 errors: null
-                            }
-                        );
+                            });
+                        });
+                } else {
+                    ProductFavoriteLike.create({
+                        userId: user.id,
+                        productId: req.body.productId,
+                        isFavorite: false,
                     })
-            }
-            await ProductLike.create({
-                userId: req.body.userId,
-                productId: req.body.productId,
-                isLike: false,
-            })
-                .then(() => {
-                    return res.status(200).json({
-                        state: true,
-                        message: "Success!",
-                        data: null,
-                        errors: null
-                    });
-                });
-        }).catch(err => {
+                        .then(() => {
+                            return res.status(200).json({
+                                state: true,
+                                message: "Success!",
+                                data: null,
+                                errors: null
+                            });
+                        })
+                }
+            }).catch(err => {
             console.log(err)
         })
+    } else {
+        return res.status(401).json({
+            state: false,
+            message: "You are not logged in!",
+            data: null,
+            errors: null
+        });
+    }
 }
 
 async function articleCategories(req, res) {
@@ -225,6 +407,132 @@ async function articles(req, res) {
         });
     } catch (err) {
         console.log(err)
+    }
+}
+
+async function articleLikes(req, res) {
+    const user = await User.findOne({
+        where: {
+            username: req.body.username
+        }
+    });
+
+    if (user) {
+
+        const pl = {
+            userId: user.id,
+            articleId: req.body.articleId,
+            isLike: true,
+        };
+
+        ArticleLike.findOne({
+            where: {
+                userId: user.id,
+                articleId: req.body.articleId,
+            }
+        })
+            .then(result => {
+                if (result) {
+                    ArticleLike.update(pl, {
+                        where: {
+                            userId: user.id,
+                            articleId: req.body.articleId,
+                        }
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    });
+                } else {
+                    ArticleLike.create({
+                        userId: user.id,
+                        articleId: req.body.articleId,
+                        isLike: true,
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    })
+                }
+            }).catch(err => {
+            console.log(err)
+        })
+    } else {
+        return res.status(401).json({
+            state: false,
+            message: "You are not logged in!",
+            data: null,
+            errors: null
+        });
+    }
+}
+
+async function articleDisLikes(req, res) {
+    const user = await User.findOne({
+        where: {
+            username: req.body.username
+        }
+    });
+
+    if (user) {
+
+        const pl = {
+            userId: user.id,
+            articleId: req.body.articleId,
+            isLike: false,
+        };
+
+        ArticleLike.findOne({
+            where: {
+                userId: user.id,
+                articleId: req.body.articleId,
+            }
+        })
+            .then(result => {
+                if (result) {
+                    ArticleLike.update(pl, {
+                        where: {
+                            userId: user.id,
+                            articleId: req.body.articleId,
+                        }
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    });
+                } else {
+                    ArticleLike.create({
+                        userId: user.id,
+                        articleId: req.body.articleId,
+                        isLike: false,
+                    }).then(() => {
+                        return res.status(200).json({
+                            state: true,
+                            message: "Success!",
+                            data: null,
+                            errors: null
+                        });
+                    })
+                }
+            }).catch(err => {
+            console.log(err)
+        })
+    } else {
+        return res.status(401).json({
+            state: false,
+            message: "You are not logged in!",
+            data: null,
+            errors: null
+        });
     }
 }
 

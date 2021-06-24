@@ -12,7 +12,7 @@ const Article = dbCon.define('Article', {
         unique: true,
         required: true,
     },
-    categoryId: {
+    /*categoryId: {
         type: DataTypes.INTEGER,
         references: {
             model: 'categories',
@@ -27,7 +27,7 @@ const Article = dbCon.define('Article', {
             key: 'id'
         },
         onDelete: 'CASCADE',
-    },
+    },*/
     name: {
         type: DataTypes.STRING,
     },

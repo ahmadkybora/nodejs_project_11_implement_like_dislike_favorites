@@ -12,7 +12,7 @@ const ArticleLike = dbCon.define('ArticleLike', {
         unique: true,
         required: true,
     },
-    /*articleId: {
+    articleId: {
         type: DataTypes.INTEGER,
         references: {
             model: 'articles',
@@ -27,7 +27,7 @@ const ArticleLike = dbCon.define('ArticleLike', {
             key: 'id'
         },
         onDelete: 'CASCADE',
-    },*/
+    },
     isLike: {
         type: DataTypes.BOOLEAN,
         required: true,
@@ -42,8 +42,16 @@ const ArticleLike = dbCon.define('ArticleLike', {
     }
 });
 
-ArticleModel.belongsToMany(UserModel, { through: ArticleLike });
-UserModel.belongsToMany(ArticleModel, { through: ArticleLike });
+ArticleModel.belongsToMany(UserModel, {
+    through: ArticleLike,
+    onDelete: 'CASCADE',
+    foreignKey: "articleId",
+});
+UserModel.belongsToMany(ArticleModel, {
+    through: ArticleLike,
+    onDelete: 'CASCADE',
+    foreignKey: "userId",
+});
 
 module.exports = ArticleLike;
 

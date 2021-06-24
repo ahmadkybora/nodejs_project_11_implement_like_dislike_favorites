@@ -11,14 +11,14 @@ const Product = dbCon.define('Product', {
         unique: true,
         required: true,
     },
-    categoryId: {
+    /*categoryId: {
         type: DataTypes.INTEGER,
         references: {
             model: 'productcategories',
             key: 'id'
         },
         onDelete: 'CASCADE',
-    },
+    },*/
     name: {
         type: DataTypes.STRING,
         required: true,

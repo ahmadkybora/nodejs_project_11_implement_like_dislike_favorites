@@ -108,9 +108,10 @@ app.listen(port, () =>{
 
 /*const ArticleLike = require('./app/Models/ArticleLikeModel');
 const ProductLike = require('./app/Models/ProductLikeModel');
-
+const ProductFavorite = require('./app/Models/ProductFavoriteModel');
 app.use(ArticleLike);
-app.use(ProductLike);*/
+app.use(ProductLike);
+app.use(ProductFavorite);*/
 
 module.exports = app;
 
